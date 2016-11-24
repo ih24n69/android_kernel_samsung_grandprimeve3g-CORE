@@ -68,11 +68,11 @@ function clean() {
 	make mrproper;
 	rm ${KERNEL_ZIP_NAME}.zip;
 	echo -e "$yellow";
-	echo -4 "Done!$nocol";
+	echo -e "Done!$nocol";
 }
 
 function main() {
-	if [ ${exportedtcpath} != "" ]; then
+	if [ ! ${exportedtcpath} == "" ]; then
 		echo -e "$red";
 		echo -e "Using exported Toolchain path: $nocol ${exportedtcpath}";
 		export CROSS_COMPILE=${exportedtcpath};
@@ -87,6 +87,13 @@ function main() {
 			echo -e "$red";
 			echo -e "Specified toolchain path: $nocol ${CROSS_COMPILE}";
 		fi;
+		if [ "${USE_CCACHE}" == "1" ]; then
+			CCACHE_PATH=/usr/bin/ccache;
+			export CROSS_COMPILE="${CCACHE_PATH} ${CROSS_COMPILE}";
+			export JOBS=16;
+			echo -e "$red";
+			echo -e "You have enabled ccache through *export USE_CCACHE=1*, now using ccache...$nocol";
+		fi;
 	fi;
 
 	echo -e "***************************************************************";
@@ -98,7 +105,7 @@ function main() {
 	echo "3. Build kernel then make flashable ZIP";
 	echo "4. Make flashable ZIP package";
 	echo "Leave empty to exit this script (it'll show invalid choice)";
-	if [ ${exportedchoice} != "" ]; then
+	if [ ! ${exportedchoice} == "" ]; then
 		choice=${exportedchoice};
 	else
 		read -n 1 -p "Select your choice: " -s choice;
